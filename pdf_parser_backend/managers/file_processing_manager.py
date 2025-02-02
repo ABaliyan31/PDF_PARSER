@@ -47,8 +47,8 @@ class FileProcessingManager:
         except Exception as e:
             return json({"error": str(e)}, status=500)
 
-
-        if not extracted_text.get(1):
+        values = " ".join(extracted_text.values())
+        if not values:
             try:
                 extracted_text = await cls.ocr_from_pdf(pdf_bytes)
             except Exception as e:
