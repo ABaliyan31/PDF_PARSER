@@ -38,6 +38,7 @@ export default function Sample({ text }) {
     const [currentPageText, setCurrentPageText] = useState<String>('');
     const [loading, setLoading] = useState<boolean>(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [loadingPage, setLoadingPage] = useState(true);
     const [currentMatchIndex, setCurrentMatchIndex] = useState<number>(-1);
     const matchesRef = useRef<Array<HTMLSpanElement>>([]);
     const [zoom, setZoom] = useState(0.9);
@@ -67,10 +68,6 @@ export default function Sample({ text }) {
 
     useResizeObserver(containerRef, resizeObserverOptions, onResize);
 
-    function onDocumentLoadSuccess({ numPages: nextNumPages }: PDFDocumentProxy): void {
-        setNumPages(nextNumPages);
-    }
-
     const handleTextSelection = () => {
         const selection = window.getSelection();
         const selectedText = selection.toString().trim();
@@ -84,7 +81,7 @@ export default function Sample({ text }) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ pdf_url: text }),
+                body: JSON.stringify({ pdf_url: text, page: currentPage }),
             });
 
             if (!response.ok) {
@@ -93,13 +90,15 @@ export default function Sample({ text }) {
 
             const data = await response.json();
             setExtractedText(data?.extracted_text);
-            setCurrentPageText(data?.extracted_text[1])
+            setCurrentPageText(data?.extracted_text[currentPage])
+            setNumPages(data?.total_pages)
             setPublicUrl(data.file_url);
         } catch (error) {
             setError(true);
             setCurrentPageText('Error fetching extracted text.');
         } finally {
             setLoading(false);
+            setLoadingPage(false);
         }
     };
 
@@ -107,7 +106,9 @@ export default function Sample({ text }) {
         if (text) {
             fetchExtractedText();
         }
+    }, []);
 
+    useEffect(() => {
         const textContainer = textContainerRef.current;
         if (textContainer) {
             textContainer.addEventListener('mouseup', handleTextSelection);
@@ -120,13 +121,16 @@ export default function Sample({ text }) {
                 textContainer.removeEventListener('mouseup', handleTextSelection);
             }
         };
-    }, [text, loading]);
+    }, [extractedText]
+    )
 
     useEffect(() => {
+        setLoadingPage((prev) => true)
+        fetchExtractedText();
         if (extractedText && currentPage && extractedText[currentPage]) {
             setCurrentPageText(extractedText[currentPage]);
         }
-    }, [currentPage, extractedText]);
+    }, [currentPage]);
 
     const highlightText = (text, search) => {
         if (!search) return text;
@@ -150,6 +154,15 @@ export default function Sample({ text }) {
 
     return (
         <>
+
+            {loadingPage && (<div
+                className={`${loadingPage ? 'block' : 'hidden'
+                    } fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50`}
+            >
+                <div className="flex justify-center items-center">
+                    <img src="loading.gif" alt="Loading..." className="w-12 h-12" />
+                </div>
+            </div>)}
             {loading && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg flex flex-col items-center">
@@ -169,12 +182,11 @@ export default function Sample({ text }) {
                         {publicUrl && (
                             <Document
                                 file={publicUrl}
-                                onLoadSuccess={onDocumentLoadSuccess}
                                 options={options}
                             >
                                 <Page
                                     key={`page_${currentPage}`}
-                                    pageNumber={currentPage}
+                                    pageNumber={1}
                                     width={containerWidth ? Math.min(containerWidth, maxWidth) : maxWidth}
                                     scale={zoom}
                                     customTextRenderer={textRenderer}
