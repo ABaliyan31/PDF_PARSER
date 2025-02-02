@@ -184,12 +184,13 @@ export default function Sample({ text }) {
                     </div>
 
                     {/* Extracted Text */}
-                    <div className="w-full p-4 rounded-lg shadow-lg bg-black max-h-[890px] overflow-auto" ref={textContainerRef}>
+                    <div className="w-full p-4 rounded-lg shadow-lg bg-white max-h-[890px] overflow-auto" ref={textContainerRef}>
                         <h3 className="text-white text-lg font-semibold mb-4">Extracted Text</h3>
-                        <pre className="text-white text-sm whitespace-pre-wrap font-mono">
+                        <pre className="text-black text-sm whitespace-pre-wrap font-mono">
                             {highlightText(currentPageText, searchTerm)}
                         </pre>
                     </div>
+
                 </div>
 
                 <div className="w-full bg-black fixed top-0 left-0 right-0 z-10">
