@@ -153,9 +153,9 @@ export default function Sample({ text }) {
 
             const style = {
                 position: 'absolute',
-                left: `${x0 * scale}px`,  // Scale the coordinates properly
+                left: `${(x0 * scale) - 5}px`,  // Shift left slightly
                 top: `${y0 * scale}px`,
-                width: `${(x1 - x0) * scale}px`,
+                width: `${((x1 - x0) * scale) + 10}px`,  // Increase width slightly
                 height: `${(y1 - y0) * scale}px`,
                 backgroundColor: 'rgba(255, 255, 0, 0.5)',
                 padding: '2px',
@@ -163,12 +163,11 @@ export default function Sample({ text }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                overflow: 'hidden',
-                fontSize: `${10 * scale}px`,  // Adjust font size based on scale
+                overflow: 'visible', // Ensure no clipping
+                fontSize: `${Math.min((y1 - y0) * scale * 0.8, 14)}px`,  // Adjust font size dynamically
                 lineHeight: 1,
-                whiteSpace: 'nowrap',
+                whiteSpace: 'pre',  // Preserve spaces
             };
-
             return (
                 <span
                     key={index}
