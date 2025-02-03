@@ -21,10 +21,8 @@ const resizeObserverOptions = {};
 const maxWidth = 800;
 
 function highlightPattern(text, pattern) {
-    const escapeRegExp = (string) => string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-    const caseInsensitivePattern = new RegExp(`(${escapeRegExp(pattern)})`, "gi");
-    return text.replace(caseInsensitivePattern, (value) => `<mark>${value}</mark>`);
-}
+    return text.replace(pattern, (value) => `<mark>${value}</mark>`);
+  }
 
 export default function Sample({ text }) {
     const [numPages, setNumPages] = useState<number>();
@@ -153,20 +151,20 @@ export default function Sample({ text }) {
 
             const style = {
                 position: 'absolute',
-                left: `${(x0 * scale) - 5}px`,  // Shift left slightly
-                top: `${y0 * scale}px`,
-                width: `${((x1 - x0) * scale) + 10}px`,  // Increase width slightly
-                height: `${(y1 - y0) * scale}px`,
-                backgroundColor: 'rgba(255, 255, 0, 0.5)',
+                left: `${(x0 * scale)*1.1}px`,
+                top: `${(y0 * scale)*1.1}px`,
+                width: `${((x1 - x0) * scale)*1.1}px`,
+                height: `${((y1 - y0) * scale)*1.1}px`,
+                backgroundColor: 'rgba(50, 50, 50, 0.4)',
                 padding: '2px',
                 color: 'black',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                overflow: 'visible', // Ensure no clipping
-                fontSize: `${Math.min((y1 - y0) * scale * 0.8, 14)}px`,  // Adjust font size dynamically
+                overflow: 'visible', 
+                fontSize: `${7 * scale}px`,
                 lineHeight: 1,
-                whiteSpace: 'pre',  // Preserve spaces
+                whiteSpace: 'nowrap'
             };
             return (
                 <span
